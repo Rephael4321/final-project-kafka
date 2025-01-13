@@ -15,10 +15,12 @@ producer = KafkaProducer(bootstrap_servers=f'kafka:{KAFKA_PORT}')
 SENSOR_TYPE = os.getenv("SENSOR_TYPE")
 TEMP_CSV_FILE = os.getenv("TEMP_CSV_FILE")
 POWER_CSV_FILE = os.getenv("POWER_CSV_FILE")
+HUMIDITY_CSV_FILE = os.getenv("HUMIDITY_CSV_FILE")
 
 # Define topics based on sensor type
 TEMP_TOPIC = SENSOR_TYPE + "_temp"
 POWER_TOPIC = SENSOR_TYPE + "_power"
+HUMIDITY_TOPIC = SENSOR_TYPE + '_humidity'
 
 def readAndSendData(kafka_topic, csv_file):
     with open(csv_file, 'r') as file:
@@ -32,7 +34,8 @@ def readAndSendData(kafka_topic, csv_file):
 # Start a thread for each CSV file and topic
 threads = [
     threading.Thread(target=readAndSendData, args=(TEMP_TOPIC, TEMP_CSV_FILE)),
-    threading.Thread(target=readAndSendData, args=(POWER_TOPIC, POWER_CSV_FILE))
+    threading.Thread(target=readAndSendData, args=(POWER_TOPIC, POWER_CSV_FILE)),
+    threading.Thread(target=readAndSendData, args=(HUMIDITY_TOPIC, HUMIDITY_CSV_FILE))
 ]
 
 # Start all threads

@@ -8,7 +8,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      test: [ "CMD", "nc", "-z", "localhost", "2181" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,7 +27,7 @@ services:
       zookeeper:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      test: [ "CMD", "nc", "-z", "localhost", "9092" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,6 +39,7 @@ services:
       SENSOR_TYPE: "ac"
       TEMP_CSV_FILE: "ac_temp.csv"
       POWER_CSV_FILE: "ac_power.csv"
+      HUMIDITY_CSV_FILE: "ac_humidity.csv"
       KAFKA_PORT: "9092"
     depends_on:
       - kafka
@@ -51,6 +52,7 @@ services:
       SENSOR_TYPE: "washing"
       TEMP_CSV_FILE: "washing_temp.csv"
       POWER_CSV_FILE: "washing_power.csv"
+      HUMIDITY_CSV_FILE: "washing_humidity.csv"
       KAFKA_PORT: "9092"
     depends_on:
       - kafka
@@ -77,6 +79,19 @@ services:
       KAFKA_PORT: "9092"
     ports:
       - "5001:5000"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: on-failure
+
+  humidity_monitor_service:
+    build:
+      context: ./monitor_service
+    environment:
+      KAFKA_TOPICS: "ac_humidity,washing_humidity"
+      KAFKA_PORT: "9092"
+    ports:
+      - "5002:5000"
     depends_on:
       kafka:
         condition: service_healthy
